@@ -2,8 +2,8 @@ module SkyCoords
 
 import ConstructionBase: constructorof
 using LinearAlgebra: I, norm
-using NearestNeighbors: Euclidean
-import NearestNeighbors: KDTree, nn, knn
+using NearestNeighbors: Euclidean, SphericalAngle, KDTree, BallTree
+import NearestNeighbors: nn, knn
 using Rotations
 using StaticArrays
 

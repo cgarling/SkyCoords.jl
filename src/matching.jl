@@ -7,7 +7,7 @@ A wrapper for a NearestNeighbors.jl `KDTree` that also includes the type of coor
 struct CoordsKDTree{TC <: AbstractSkyCoords, K <: KDTree}
     tree::K
 end
-CoordsKDTree{TC}(tree::K) where {TC, K} = CoordsKDTree{TC, K}(tree)
+CoordsKDTree{TC}(tree::K) where {TC, K <: KDTree} = CoordsKDTree{TC, K}(tree)
 # If the element type of `data` is AbstractSkyCoords, then it contains mixed
 # coordinates that need to be converted to be uniform
 function CoordsKDTree(data::AbstractArray{AbstractSkyCoords}; kws...)
@@ -41,6 +41,30 @@ function nn(tree::CoordsKDTree{T}, coords::AbstractArray{T}) where {T <: Abstrac
     return id, sep
 end
 
+
+struct CoordsBallTree{TC <: AbstractSkyCoords, B <: BallTree}
+    tree::B
+end
+CoordsBallTree{TC}(tree::B) where {TC, B <: BallTree} = CoordsBallTree{TC, B}(tree)
+function CoordsBallTree(data::AbstractArray{AbstractSkyCoords}; kws...)
+    TC = typeof(first(data))
+    return CoordsBallTree([convert(TC, d) for d in data]; kws...)
+end
+function CoordsBallTree(data::AbstractArray{TC}; kws...) where {TC <: AbstractSkyCoords}
+    data_array = [SVector{2}(lon(data[i]), lat(data[i])) for i in eachindex(data)]
+    tree = BallTree(data_array, SphericalAngle(); kws...)
+    return CoordsBallTree{TC}(tree)
+end
+
+nn(tree::CoordsBallTree{TC}, coord::T) where {TC, T <: AbstractSkyCoords} = nn(tree, convert(TC, coord))
+function nn(tree::CoordsBallTree{T}, coord::T) where {T <: AbstractSkyCoords}
+    return nn(tree.tree, SVector{2}(lon(coord), lat(coord)))
+end
+nn(tree::CoordsBallTree{TC}, coords::AbstractArray{T}) where {TC, T <: AbstractSkyCoords} = nn(tree, [convert(TC, coord) for coord in coords])
+function nn(tree::CoordsBallTree{T}, coords::AbstractArray{T}) where {T <: AbstractSkyCoords}
+    return nn(tree.tree, [SVector{2}(lon(coord), lat(coord)) for coord in coords])
+end
+
 """
     match_coords(refcoords::AbstractArray{<:AbstractSkyCoords}, 
                  matchcoords::AbstractArray{<:AbstractSkyCoords})
@@ -53,7 +77,8 @@ Note that this method creates a `CoordsKDTree` from `refcoords` and then calls t
     match_coords(tree::CoordsKDTree, matchcoords::AbstractArray{<:AbstractSkyCoords})
 As above, but uses a pre-constructed `tree::CoordsKDTree` rather than creating one from a reference catalog of coordinates.
 """
-match_coords(tree::CoordsKDTree, matchcoords::AbstractArray{<:AbstractSkyCoords}) = nn(tree, matchcoords)
+match_coords(tree::Union{CoordsKDTree, CoordsBallTree}, matchcoords::AbstractArray{<:AbstractSkyCoords}) = nn(tree, matchcoords)
 function match_coords(refcoords::AbstractArray{<:AbstractSkyCoords}, matchcoords::AbstractArray{<:AbstractSkyCoords})
-    return match_coords(CoordsKDTree(refcoords), matchcoords)
+    # return match_coords(CoordsKDTree(refcoords), matchcoords)
+    return match_coords(CoordsBallTree(refcoords), matchcoords)
 end
