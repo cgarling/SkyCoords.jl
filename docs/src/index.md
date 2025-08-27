@@ -144,7 +144,7 @@ julia> position_angle(mizar, alcor) |> rad2deg # degrees
 
 ## Catalog Matching
 
-SkyCoords.jl offers basic coordinate catalog matching through an extension that depends on [`NearestNeighbors.jl`](https://github.com/KristofferC/NearestNeighbors.jl). This functionality requires Julia ≥ v1.9 and `NearestNeighbors.jl` to be loaded (e.g., `using NearestNeighbors.jl`).
+SkyCoords.jl offers basic coordinate catalog matching through an extension that depends on [NearestNeighbors.jl](https://github.com/KristofferC/NearestNeighbors.jl). This functionality requires Julia ≥ v1.9 and `NearestNeighbors.jl` to be loaded (e.g., `using NearestNeighbors.jl`).
 
 The [`match_coords`](@ref) function can match two catalogs of coordinates. This function operates on two arrays of coordinates, the first being the "reference" catalog that will be searched to find the closest coordinates to those in the second catalog. This function returns the indices into the reference catalog of the matches and the angular separation (in radians) between each coordinate and its match in the reference catalog.
 
@@ -164,6 +164,8 @@ ids == [1,5,10] # Indices for which `refcat[id]` match to `matchcat`
 # output
 true
 ```
+
+More complicated catalog joins are supported by the [FlexiJoins.jl](https://github.com/JuliaAPlavin/FlexiJoins.jl) package. For example, if `L` and `R` are two catalogs with coordinate keys `:coordsL` and `:coordsR` respectively, the two catalogs can joined based on angular separation with `FlexiJoins.innerjoin((L, R), by_distance(:coordsL, :coordsR, SkyCoords.separation, <=(0.1)))` where the final condition indicates you only want to keep matches that have separations less than 0.1 rad.
 
 ## Accuracy
 
