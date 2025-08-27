@@ -144,9 +144,12 @@ julia> position_angle(mizar, alcor) |> rad2deg # degrees
 
 ## Catalog Matching
 
+SkyCoords.jl offers basic coordinate catalog matching through an extension that depends on [`NearestNeighbors.jl`](https://github.com/KristofferC/NearestNeighbors.jl). This functionality requires Julia ≥ v1.9 and `NearestNeighbors.jl` to be loaded (e.g., `using NearestNeighbors.jl`).
+
 The [`match_coords`](@ref) function can match two catalogs of coordinates. This function operates on two arrays of coordinates, the first being the "reference" catalog that will be searched to find the closest coordinates to those in the second catalog. This function returns the indices into the reference catalog of the matches and the angular separation (in radians) between each coordinate and its match in the reference catalog.
 
 ```jldoctest matching
+using NearestNeighbors # Required to use match_coords, CoordsKDTree
 # Generate random coordinates
 N = 1000
 lons = 2pi .* rand(N) # (0, 2π)
@@ -156,8 +159,8 @@ refcat = ICRSCoords.(lons, lats)
 # The catalog of coordinates for which you want to find neighbors in "refcat"
 matchcat = refcat[[1,5,10]]
 
-id, sep = match_coords(refcat, matchcat)
-id == [1,5,10] # Indices for which `refcat[id]` match to `matchcat`
+ids, sep = match_coords(refcat, matchcat)
+ids == [1,5,10] # Indices for which `refcat[id]` match to `matchcat`
 # output
 true
 ```
