@@ -149,7 +149,7 @@ SkyCoords.jl offers basic coordinate catalog matching through an extension that 
 The [`match_coords`](@ref) function can match two catalogs of coordinates. This function operates on two arrays of coordinates, the first being the "reference" catalog that will be searched to find the closest coordinates to those in the second catalog. This function returns the indices into the reference catalog of the matches and the angular separation (in radians) between each coordinate and its match in the reference catalog.
 
 ```jldoctest matching
-using NearestNeighbors # Required to use match_coords, CoordsKDTree
+using NearestNeighbors # Required to use match_coords
 # Generate random coordinates
 N = 1000
 lons = 2pi .* rand(N) # (0, 2π)
