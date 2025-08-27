@@ -312,7 +312,7 @@ Note that this method creates a [`CoordsKDTree`](@ref) from `refcoords` and then
                  nthneighbor::Int = 1)
 As above, but uses a pre-constructed `tree::CoordsKDTree` rather than creating one from a reference catalog of coordinates.
 """
-match_coords(a,b) = error("NearestNeighbors.jl must be loaded (e.g., `using NearestNeighbors`) in order for `SkyCoords.match_coords` to work.")
+function match_coords end
 
 """
     CoordsKDTree(data::AbstractArray{<:AbstractSkyCoords}; kws...)
@@ -327,6 +327,5 @@ A wrapper for a NearestNeighbors.jl `KDTree` that also includes the type of coor
 struct CoordsKDTree{TC <: AbstractSkyCoords, K}
     tree::K
 end
-CoordsKDTree(data) = error("NearestNeighbors.jl must be loaded (e.g., `using NearestNeighbors`) in order for `SkyCoords.CoordsKDTree` to work.")
 
 end # module
